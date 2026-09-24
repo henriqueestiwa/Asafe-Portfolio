@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+
+    <title>Portfólio | Asafe Rosa</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <header class="header-port">
+        <div class="port-logo">
+            <a href="index.html"> ASAFE
+                <p>Galeria</p>
+            </a>
+        </div>
+    </header>
+
+    <main>
+
+        <section class="portfolio">
+
+            <div class="portfolio-topo">
+                <div class="filtros">
+                    <button data-filtro="todos" class="ativo">TODOS</button>
+                    <button data-filtro="eventos">EVENTOS</button>
+                    <button data-filtro="retratos">RETRATOS</button>
+                    <button data-filtro="gastronomia">GASTRONOMIA</button>
+                </div>
+            </div>
+
+            <div class="portfolio-carrossel">
+
+                <div class="foto-lateral foto-anterior">
+                    <img src="assets/eventos/evento1.jpg" alt="">
+                </div>
+
+                <div class="foto-principal">
+                    <img src="assets/eventos/gastro1.jpg" alt="">
+                </div>
+
+                <div class="foto-lateral foto-proxima">
+                    <img src="assets/eventos/retrato1.jpg" alt="">
+                </div>
+
+            </div>
+
+            <div class="portfolio-info">
+                <p class="categoria-atual">TODOS</p>
+                <p class="contador">01 / 00</p>
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="js/script.js"></script>
+
+</body>
+</html>
