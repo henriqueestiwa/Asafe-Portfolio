@@ -24,13 +24,41 @@
     </header>
 
     <main>
+        <div class="filtros" role="group" aria-label="Filtrar fotografias">
+            <button type="button" class="filtro ativo" data-filtro="todos" aria-pressed="true">TODOS</button>
+            <button type="button" class="filtro" data-filtro="eventos" aria-pressed="false">EVENTOS</button>
+            <button type="button" class="filtro" data-filtro="retratos" aria-pressed="false">RETRATOS</button>
+            <button type="button" class="filtro" data-filtro="gastronomia" aria-pressed="false">GASTRONOMIA</button>
+        </div>
         <section class="galeria">
             
         </section>
-        <button class="ver-mais">
+        <button type="button" class="ver-mais">
             VER MAIS
         </button>
     </main>
+
+    <dialog class="visualizador" aria-label="Visualização ampliada de fotografias">
+        <div class="visualizador-topo">
+            <span class="visualizador-marca">ASAFE <span>Galeria</span></span>
+            <button type="button" class="visualizador-fechar" aria-label="Fechar visualização">FECHAR <span aria-hidden="true">×</span></button>
+        </div>
+        <div class="visualizador-fotos">
+            <button type="button" class="visualizador-lateral visualizador-anterior" aria-label="Fotografia anterior">
+                <img alt="">
+                <span aria-hidden="true">←</span>
+            </button>
+            <figure class="visualizador-centro">
+                <img class="visualizador-imagem" alt="">
+                <figcaption class="visualizador-legenda" aria-live="polite"></figcaption>
+            </figure>
+            <button type="button" class="visualizador-lateral visualizador-proxima" aria-label="Próxima fotografia">
+                <img alt="">
+                <span aria-hidden="true">→</span>
+            </button>
+        </div>
+        <p class="visualizador-ajuda">Use as setas para navegar · Esc para fechar</p>
+    </dialog>
 
     <script src="js/script.js"></script>
 

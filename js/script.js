@@ -75,49 +75,127 @@ const fotos = [
 ];
 
 const galeria = document.querySelector(".galeria");
-
 const botaoVerMais = document.querySelector(".ver-mais");
+const botoesFiltro = document.querySelectorAll(".filtro");
 
-let limiteFotos = 8;
-let galeriaExpandida = false;
+// O script também é usado na página inicial, que não possui galeria.
+if (galeria && botaoVerMais) {
+    const limiteInicial = 8;
+    const categorias = ["todos", "eventos", "retratos", "gastronomia"];
+    const filtroURL = new URLSearchParams(window.location.search).get("filtro");
+    let filtroAtual = categorias.includes(filtroURL) ? filtroURL : "todos";
+    let galeriaExpandida = false;
 
-function mostrarFotos() {
+    const visualizador = document.querySelector(".visualizador");
+    const imagemAmpliada = visualizador.querySelector(".visualizador-imagem");
+    const legenda = visualizador.querySelector(".visualizador-legenda");
+    const anterior = visualizador.querySelector(".visualizador-anterior");
+    const proxima = visualizador.querySelector(".visualizador-proxima");
+    let fotosDoVisualizador = [];
+    let indiceAtual = 0;
+    let inicioToque = null;
 
-    galeria.innerHTML = "";
-
-    const fotosVisiveis = fotos.slice(0, limiteFotos);
-
-    fotosVisiveis.forEach((foto) => {
-
-    const item = document.createElement("div");
-    const imagem = document.createElement("img");
-
-    item.classList.add("galeria-item");
-
-    imagem.src = foto.src;
-
-    item.appendChild(imagem);
-    galeria.appendChild(item);
-
-})};
-
-mostrarFotos();
-
-botaoVerMais.addEventListener("click", () => {
-
-    if (galeriaExpandida) {
-
-        limiteFotos = 8;
-        botaoVerMais.textContent = "VER MAIS";
-        galeriaExpandida = false;
-
-    } else {
-
-        limiteFotos = fotos.length;
-        botaoVerMais.textContent = "VER MENOS";
-        galeriaExpandida = true;
-
+    function atualizarVisualizador() {
+        const total = fotosDoVisualizador.length;
+        const foto = fotosDoVisualizador[indiceAtual];
+        imagemAmpliada.src = foto.src;
+        imagemAmpliada.alt = "Fotografia de " + foto.categoria;
+        legenda.textContent = foto.categoria.toUpperCase() + " · " + (indiceAtual + 1) + " / " + total;
+        anterior.querySelector("img").src = fotosDoVisualizador[(indiceAtual - 1 + total) % total].src;
+        proxima.querySelector("img").src = fotosDoVisualizador[(indiceAtual + 1) % total].src;
+        anterior.hidden = total <= 1;
+        proxima.hidden = total <= 1;
     }
 
+    function navegar(direcao) {
+        indiceAtual = (indiceAtual + direcao + fotosDoVisualizador.length) % fotosDoVisualizador.length;
+        atualizarVisualizador();
+    }
+
+    function abrirFoto(indice, fotosFiltradas) {
+        // Navega por todas as fotos do filtro, inclusive além das primeiras oito.
+        fotosDoVisualizador = fotosFiltradas;
+        indiceAtual = indice;
+        atualizarVisualizador();
+        visualizador.showModal();
+        document.body.classList.add("visualizador-aberto");
+    }
+
+    anterior.addEventListener("click", () => navegar(-1));
+    proxima.addEventListener("click", () => navegar(1));
+    visualizador.querySelector(".visualizador-fechar").addEventListener("click", () => visualizador.close());
+    visualizador.addEventListener("close", () => {
+        document.body.classList.remove("visualizador-aberto");
+        inicioToque = null;
+    });
+    visualizador.addEventListener("click", (evento) => {
+        if (evento.target === visualizador) visualizador.close();
+    });
+    visualizador.addEventListener("keydown", (evento) => {
+        if (evento.key === "ArrowLeft" || evento.key === "ArrowRight") {
+            evento.preventDefault();
+            navegar(evento.key === "ArrowLeft" ? -1 : 1);
+        }
+    });
+    imagemAmpliada.addEventListener("touchstart", (evento) => {
+        inicioToque = evento.touches.length === 1 ? evento.touches[0].clientX : null;
+    }, { passive: true });
+    imagemAmpliada.addEventListener("touchend", (evento) => {
+        if (inicioToque === null) return;
+        const distancia = evento.changedTouches[0].clientX - inicioToque;
+        if (Math.abs(distancia) > 50) navegar(distancia < 0 ? 1 : -1);
+        inicioToque = null;
+    }, { passive: true });
+    imagemAmpliada.addEventListener("touchcancel", () => { inicioToque = null; });
+
+    function mostrarFotos() {
+        // Primeiro filtra; depois aplica o limite da galeria recolhida.
+        const fotosFiltradas = filtroAtual === "todos"
+            ? fotos
+            : fotos.filter((foto) => foto.categoria === filtroAtual);
+        const fotosVisiveis = galeriaExpandida
+            ? fotosFiltradas
+            : fotosFiltradas.slice(0, limiteInicial);
+
+        galeria.innerHTML = "";
+
+        fotosVisiveis.forEach((foto, indice) => {
+            const item = document.createElement("button");
+            const imagem = document.createElement("img");
+
+            item.classList.add("galeria-item");
+            item.type = "button";
+            item.setAttribute("aria-label", "Ampliar fotografia de " + foto.categoria + " " + (indice + 1));
+            item.addEventListener("click", () => abrirFoto(indice, fotosFiltradas));
+            imagem.src = foto.src;
+            imagem.alt = "Fotografia de " + foto.categoria;
+
+            item.appendChild(imagem);
+            galeria.appendChild(item);
+        });
+
+        botoesFiltro.forEach((botao) => {
+            const ativo = botao.dataset.filtro === filtroAtual;
+            botao.classList.toggle("ativo", ativo);
+            botao.setAttribute("aria-pressed", String(ativo));
+        });
+
+        botaoVerMais.hidden = fotosFiltradas.length <= limiteInicial;
+        botaoVerMais.textContent = galeriaExpandida ? "VER MENOS" : "VER MAIS";
+    }
+
+    botoesFiltro.forEach((botao) => {
+        botao.addEventListener("click", () => {
+            filtroAtual = botao.dataset.filtro;
+            galeriaExpandida = false;
+            mostrarFotos();
+        });
+    });
+
+    botaoVerMais.addEventListener("click", () => {
+        galeriaExpandida = !galeriaExpandida;
+        mostrarFotos();
+    });
+
     mostrarFotos();
-});
+}
